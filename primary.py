@@ -3,7 +3,6 @@
 
 import numpy as np
 from random import randint
-from show_cube import show_cube
 
 
 def define_rotations():
@@ -17,8 +16,8 @@ def define_rotations():
     return R, L, U, D, F, B
 
 
-RIGHT, LEFT, UP, DOWN, FRONT, BACK = define_rotations()
-moves_dict = {'R':RIGHT, 'L':LEFT, 'U':UP, 'D':DOWN, 'F':FRONT, 'B':BACK}
+R, L, U, D, F, B = define_rotations()
+moves_dict = {'R': R, 'L': L, 'U': U, 'D': D, 'F': F, 'B': B}
 
 
 def apply(move, cube):

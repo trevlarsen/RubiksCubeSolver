@@ -73,14 +73,15 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
         plt.ion()
         plt_cube = new_cube()
         for move in scramble_sequence:
-            show_cube(plt_cube, both_sides=both_sides, speed=.05)
+            show_cube(plt_cube, both_sides=both_sides, speed=.05, title='Scrambling...')
             apply(move, plt_cube)
+        show_cube(plt_cube, both_sides=both_sides, speed=.05, title='Ready')
         plt.pause(2)
         for i, move in enumerate(solution):
             if i % skip == 0:
-                show_cube(plt_cube, both_sides=both_sides, speed=.002)
+                show_cube(plt_cube, both_sides=both_sides, speed=.005, title='Solving...')
             apply(move, plt_cube)
-        show_cube(plt_cube, both_sides=both_sides)
+        show_cube(plt_cube, both_sides=both_sides, title='Solved!')
         plt.ioff()
         plt.show()
     return duration, move_count, solved
