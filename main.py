@@ -72,11 +72,14 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
     if plot:
         plt.ion()
         plt_cube = new_cube()
+        show_cube(plt_cube, both_sides=both_sides)
+        plt.pause(3)
         for move in scramble_sequence:
-            show_cube(plt_cube, both_sides=both_sides, speed=.05, title='Scrambling...')
+            show_cube(plt_cube, both_sides=both_sides, speed=.03, title='Scrambling...')
             apply(move, plt_cube)
         show_cube(plt_cube, both_sides=both_sides, speed=.05, title='Ready')
-        plt.pause(2)
+        plt.pause(3)
+        # input('Press Enter to Solve')
         for i, move in enumerate(solution):
             if i % skip == 0:
                 show_cube(plt_cube, both_sides=both_sides, speed=.005, title='Solving...')
@@ -202,7 +205,7 @@ def scramble_test(n, lim=30):
 
 
 
-one_solve(plot=True, skip=2, both_sides=False)
+# one_solve(plot=True, skip=2, both_sides=False)
 
 # performance_test(5000,30, details=True, full_data=False)
 

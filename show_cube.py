@@ -93,21 +93,16 @@ def draw_square(ax, x0, face, s, color):
         x0, dx, dy = np.array(x0), np.array(dx), np.array(dy)
         hs = 0.5 * s
         
-        mesh = np.array([
-            [
-                x0 - hs * dx - hs * dy,
-                x0 - hs * dx + hs * dy,
-            ],
-            [
-                x0 + hs * dx - hs * dy,
-                x0 + hs * dx + hs * dy,
-            ],
-        ])[::-1].transpose(2, 0, 1)
+        mesh = np.array([[x0 - hs * dx - hs * dy,
+                          x0 - hs * dx + hs * dy],
+                         [x0 + hs * dx - hs * dy,
+                          x0 + hs * dx + hs * dy],
+                        ])[::-1].transpose(2, 0, 1)
         
         ax.plot_surface(*mesh, color=color, shade=False)
 
 def render_cube(ax, cube):
-    ax.clear()  # Clear the previous plot instead of clearing the entire figure
+    ax.clear()
     # Render cube base and center faces
     for d in [UP, FRONT, RIGHT, LEFT, BACK, DOWN]:
         darr = np.array(d)
