@@ -3,6 +3,7 @@
 
 import numpy as np
 from random import randint
+from show_cube import show_cube
 
 
 def define_rotations():
@@ -75,5 +76,4 @@ def new_cube():
 def is_solved(cube):
     '''Returns True is the cube is solved'''
     return np.allclose(cube, np.arange(49))
-
 

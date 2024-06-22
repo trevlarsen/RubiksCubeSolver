@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 from primary import apply, execute, scramble, new_cube, is_solved
 from sequences import test_sequence, sequence_order, reverse_sequence, verify_rotations, condense
 from algorithms2 import make_cross, bottom_corners, middle_edges, orient_top_edges, permute_top_edges, orient_top_corners, permute_top_corners
+from show_cube import show_cube
 # from interface import side_data
 
 
@@ -26,7 +27,7 @@ def solve(cube):
     return solution
 
 
-def one_solve(n=30, details=True, follow=False):
+def one_solve(n=30, details=True, follow=False, plot=False, skip=1):
     '''Performs a single solve and outputs data about the solve'''
     cube = new_cube()
     scramble_sequence = scramble(cube,n)
@@ -67,6 +68,21 @@ def one_solve(n=30, details=True, follow=False):
         else:
             print('Solution:  ' + solution)
         print(f'Move Count: {move_count}')
+    
+    if plot:
+        plt.ion()
+        plt_cube = new_cube()
+        for move in scramble_sequence:
+            show_cube(plt_cube, both_sides=False, speed=.05)
+            apply(move, plt_cube)
+        plt.pause(2)
+        for i, move in enumerate(solution):
+            if i % 3 == 0:
+                show_cube(plt_cube, both_sides=False, speed=.002)
+            apply(move, plt_cube)
+        show_cube(plt_cube, both_sides=False)
+        plt.ioff()
+        plt.show()
     return duration, move_count, solved
 
 
@@ -185,7 +201,7 @@ def scramble_test(n, lim=30):
 
 
 
-# one_solve(n=30, details=True, follow=True)
+# one_solve(plot=True, skip=3)
 
 # performance_test(5000,30, details=True, full_data=False)
 
