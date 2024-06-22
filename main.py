@@ -4,14 +4,12 @@
 import numpy as np
 import time as t
 import textwrap
-import curses
 from matplotlib import pyplot as plt
 
-from primary import apply, execute, scramble, new_cube, is_solved
-from sequences import test_sequence, sequence_order, reverse_sequence, verify_rotations, condense
+from primary import apply, scramble, new_cube, is_solved
+from sequences import condense
 from algorithms2 import make_cross, bottom_corners, middle_edges, orient_top_edges, permute_top_edges, orient_top_corners, permute_top_corners
 from show_cube import show_cube
-# from interface import side_data
 
 
 def solve(cube):
@@ -69,17 +67,22 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
             print('Solution:  ' + solution)
         print(f'Move Count: {move_count}')
     
+    # 3d plotting
     if plot:
+        # Display initial cube
         plt.ion()
         plt_cube = new_cube()
         show_cube(plt_cube, both_sides=both_sides)
         plt.pause(3)
+
+        # Display scramble
         for move in scramble_sequence:
             show_cube(plt_cube, both_sides=both_sides, speed=.03, title='Scrambling...')
             apply(move, plt_cube)
         show_cube(plt_cube, both_sides=both_sides, speed=.05, title='Ready')
         plt.pause(3)
-        # input('Press Enter to Solve')
+        
+        # Display solution
         for i, move in enumerate(solution):
             if i % skip == 0:
                 show_cube(plt_cube, both_sides=both_sides, speed=.005, title='Solving...')
@@ -87,6 +90,7 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
         show_cube(plt_cube, both_sides=both_sides, title='Solved!')
         plt.ioff()
         plt.show()
+    
     return duration, move_count, solved
 
 
