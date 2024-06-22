@@ -27,7 +27,7 @@ def solve(cube):
     return solution
 
 
-def one_solve(n=30, details=True, follow=False, plot=False, skip=1):
+def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=False):
     '''Performs a single solve and outputs data about the solve'''
     cube = new_cube()
     scramble_sequence = scramble(cube,n)
@@ -73,14 +73,14 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1):
         plt.ion()
         plt_cube = new_cube()
         for move in scramble_sequence:
-            show_cube(plt_cube, both_sides=False, speed=.05)
+            show_cube(plt_cube, both_sides=both_sides, speed=.05)
             apply(move, plt_cube)
         plt.pause(2)
         for i, move in enumerate(solution):
-            if i % 3 == 0:
-                show_cube(plt_cube, both_sides=False, speed=.002)
+            if i % skip == 0:
+                show_cube(plt_cube, both_sides=both_sides, speed=.002)
             apply(move, plt_cube)
-        show_cube(plt_cube, both_sides=False)
+        show_cube(plt_cube, both_sides=both_sides)
         plt.ioff()
         plt.show()
     return duration, move_count, solved
@@ -201,7 +201,7 @@ def scramble_test(n, lim=30):
 
 
 
-# one_solve(plot=True, skip=3)
+one_solve(plot=True, skip=2, both_sides=False)
 
 # performance_test(5000,30, details=True, full_data=False)
 

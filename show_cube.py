@@ -12,9 +12,9 @@ DOWN = (0,0,-1)
 WHITE = (0.95,0.95,0.95)
 YELLOW = (1.0,1.0,0.1)
 RED = (0.9,0.1,0.1)
-GREEN = (0.3,0.9,0.1)
+GREEN = (0.1, 0.8, 0.2)
 BLUE = (0.2,0.1,0.8)
-ORANGE = (242/255,177/255,0.1)
+ORANGE = (1.0, 0.6, 0.0)
 
 CELL_LOCS = [
     None,
@@ -68,34 +68,32 @@ CELL_LOCS = [
     ((1,1,1),UP),
 ]
 
+# Direction lookup dictionary
+PERP_DIRS = {
+    UP: (RIGHT, FRONT),
+    FRONT: (RIGHT, DOWN),
+    RIGHT: (BACK, DOWN),
+    LEFT: (UP, FRONT),
+    BACK: (RIGHT, UP),
+    DOWN: (RIGHT, BACK),
+}
+
+# Color lookup dictionary
+FACE_COLORS = {
+    UP: WHITE,
+    FRONT: GREEN,
+    RIGHT: RED,
+    LEFT: ORANGE,
+    BACK: BLUE,
+    DOWN: YELLOW,
+}
+
 def get_perp_dirs(face):
-    if face == UP:
-        return RIGHT, FRONT
-    elif face == FRONT:
-        return RIGHT, DOWN
-    elif face == RIGHT:
-        return BACK, DOWN
-    elif face == LEFT:
-        return UP, FRONT
-    elif face == BACK:
-        return RIGHT, UP
-    elif face == DOWN:
-        return RIGHT, BACK
+    return PERP_DIRS[face]
 
 def get_face_color(face):
-    if face == UP:
-        return WHITE
-    elif face == FRONT:
-        return GREEN
-    elif face == RIGHT:
-        return RED
-    elif face == LEFT:
-        return ORANGE
-    elif face == BACK:
-        return BLUE
-    elif face == DOWN:
-        return YELLOW
-
+    return FACE_COLORS[face]
+    
 def _draw_square(ax, x0, face, s, color):
         dx, dy = get_perp_dirs(face)
         x0, dx, dy = np.array(x0), np.array(dx), np.array(dy)
@@ -123,24 +121,23 @@ def _render_cube(ax, cube):
         dx, dy = np.array(dx), np.array(dy)
         for i in range(-1, 2):
             for j in range(-1, 2):
-                _draw_square(ax, darr * 1.5 + i * dx + j * dy, d, 1, 'k')
+                _draw_square(ax, darr * 1.35 + i * dx + j * dy, d, .975, 'k')
         
         center_color = get_face_color(d)
-        _draw_square(ax, darr * 1.65, d, 0.9, center_color)
+        _draw_square(ax, darr * 1.5, d, 0.925, center_color)
         
     # Render side faces
     for i, cell in enumerate(cube[1:], start=1):
         pos, facing = CELL_LOCS[i]
         color = get_face_color(CELL_LOCS[cell][1])
-        act_pos = np.array(pos) + 0.65 * np.array(facing)
-        _draw_square(ax, act_pos, facing, 0.9, color)
+        act_pos = np.array(pos) + 0.5 * np.array(facing)
+        _draw_square(ax, act_pos, facing, 0.925, color)
     ax.axis('off')
     ax.set_box_aspect([1, 1, 1])
     plt.draw()
 
 
 def show_cube(cube, both_sides=True, speed=.1):
-    plt.clf()
     if both_sides:
         ax = plt.subplot(1,2,1, projection='3d')
     else:
