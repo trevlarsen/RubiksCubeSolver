@@ -1,5 +1,3 @@
-
-
 import sys
 
 def get_side_inputs(side_name, top_name):

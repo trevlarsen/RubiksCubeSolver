@@ -1,7 +1,5 @@
-
-
-
 import json
+
 
 algs1 = { 1:'s',    2:'d',    3:'DD',    4:'D',   # Yellow edges
         24:'frd',  9:'rd',  13:'Frd',  22:'LD',  # Green edges
