@@ -113,7 +113,7 @@ def draw_square(ax, x0, face, s, color):
 
 def render_cube(ax, cube):
     '''Render the entire cube one face at a time'''
-    ax.clear()
+    # ax.clear()
 
     # Render cube base
     for d in [UP, FRONT, RIGHT, LEFT, BACK, DOWN]:
@@ -141,6 +141,7 @@ def render_cube(ax, cube):
 
 def show_cube(cube, both_sides=True, speed=.1, title=''):
     '''Format the plotting window and render the cube'''
+    plt.clf()
 
     # Construct subplots
     if both_sides:
