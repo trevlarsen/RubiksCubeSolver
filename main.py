@@ -136,9 +136,9 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
 
 
 # interactive()
-#what
+
 one_solve(plot=True, skip=2, both_sides=False)
-#the
+
 # def user_solve():
 #     '''Allow the user to input values of their cube'''
 #     data = []
