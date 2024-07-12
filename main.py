@@ -136,7 +136,7 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
 
 
 # interactive()
-
+#what
 one_solve(plot=True, skip=2, both_sides=False)
 
 # def user_solve():
