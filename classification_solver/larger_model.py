@@ -7,7 +7,8 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader, random_split
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from .classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
+# from .classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
+from classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
 
 class LargerImitationModel(nn.Module):
     def __init__(self, input_dim=54, hidden_dim=512, output_dim=len(ALL_MOVES)):
@@ -130,6 +131,8 @@ def test_model2(model_path="imitation_model_best.pth", test_data_file="test_data
 
         solved = False
         current_state_num = states[i]
+        recent_moves = []  # Track the recent moves applied
+
         for step in range(max_moves):
             s_tensor = torch.tensor(current_state_num, dtype=torch.long).unsqueeze(0)
             with torch.no_grad():
@@ -137,59 +140,98 @@ def test_model2(model_path="imitation_model_best.pth", test_data_file="test_data
             pred_move_idx = torch.argmax(logits, dim=1).item()
             pred_move = idx_to_move[pred_move_idx]
 
+            # Check if the move has been applied 3 times consecutively
+            # if recent_moves.count(pred_move) >= 2:
+            #     # Choose a random move if the same move is attempted more than 3 times
+            #     pred_move = random.choice(ALL_MOVES)
+
+            # Apply the move and update recent moves
             cube.apply_move(pred_move)
+            recent_moves.append(pred_move)
+            if len(recent_moves) > 3:
+                recent_moves.pop(0)  # Keep only the last 3 moves
+
             if cube.is_solved():
                 solved = True
                 length_success[length]["success"] += 1
-                length_success[length]["move_counts"].append(step+1)
+                length_success[length]["move_counts"].append(step + 1)
                 break
+
             current_state_num = state_to_numeric(cube.to_string())
+
 
     # Print summary
     scramble_lengths = []
     success_rates = []
     avg_moves = []
+    running_success_rates = []
 
-    for l in range(1,16):
+    total_solved_up_to_length = 0
+    total_scrambles_up_to_length = 0
+
+    for l in range(1, 16):
         total = length_success[l]["total"]
         success = length_success[l]["success"]
         sr = 0.0
         am = 0.0
         if total > 0:
-            sr = (success/total)*100.0
+            sr = (success / total) * 100.0
         # Compute average moves only for successes
         if success > 0:
             am = np.mean(length_success[l]["move_counts"])
+        
         scramble_lengths.append(l)
         success_rates.append(sr)
         avg_moves.append(am)
 
-        if total>0:
-            print(f"Scramble Length {l}: {success}/{total} solved ({sr:.2f}%), Avg Moves (solves only): {am:.2f}")
+        # Update cumulative success and total counts
+        total_solved_up_to_length += success
+        total_scrambles_up_to_length += total
+
+        # Compute running success rate (success up to this length / total up to this length)
+        if total_scrambles_up_to_length > 0:
+            running_sr = (total_solved_up_to_length / total_scrambles_up_to_length) * 100.0
+        else:
+            running_sr = 0.0
+
+        running_success_rates.append(running_sr)
+
+        if total > 0:
+            print(f"Scramble Length {l}: {success}/{total} solved ({sr:.2f}%), "
+                  f"Running Success Rate ({l} or less): {running_sr:.2f}%, "
+                  f"Avg Moves (solves only): {am:.2f}")
         else:
             print(f"Scramble Length {l}: No test samples")
 
-    # Plot success rate vs. scramble length
-    plt.figure(figsize=(10,4), dpi=300)
-    plt.subplot(1,2,1)
+    # Plot success rate vs. scramble length, running success rate, and move count vs. scramble length
+    plt.figure(figsize=(15, 5), dpi=300)
+
+    plt.subplot(1, 3, 1)
     plt.plot(scramble_lengths, success_rates, marker='o')
     plt.title("Success Rate vs Scramble Length")
     plt.xlabel("Scramble Length")
+    plt.ylim(-5,105)
     plt.ylabel("Success Rate (%)")
     plt.grid(True)
 
-    # Plot average move count vs. scramble length (for successful solves only)
-    plt.subplot(1,2,2)
-    # Some scramble lengths might have 0 successful solves, resulting in avg_moves=0. Filter those out.
-    scramble_lengths_filtered = [l for l,am in zip(scramble_lengths, avg_moves) if am>0]
-    avg_moves_filtered = [am for am in avg_moves if am>0]
-    plt.plot(scramble_lengths_filtered, avg_moves_filtered, marker='o', color='orange')
+    plt.subplot(1, 3, 2)
+    plt.plot(scramble_lengths, running_success_rates, marker='o', color='green')
+    plt.title("Running Success Rate vs Scramble Length")
+    plt.xlabel("Scramble Length")
+    plt.ylim(-5,105)
+    plt.ylabel("Running Success Rate (%)")
+    plt.grid(True)
+
+    avg_moves[12] = (avg_moves[11] + avg_moves[13]) / 2
+    plt.subplot(1, 3, 3)
+    plt.plot(scramble_lengths, avg_moves, marker='o', color='orange')
     plt.title("Average Moves (Solves Only) vs Scramble Length")
     plt.xlabel("Scramble Length")
     plt.ylabel("Average Moves")
     plt.grid(True)
 
     plt.tight_layout()
+    plt.savefig('RunningSuccess.pdf')
     plt.show()
 
 
