@@ -1,5 +1,6 @@
 import numpy as np
 from random import randint
+from condense import condense
 
 
 def define_rotations():
@@ -48,20 +49,15 @@ def scramble(cube, n=50):
     '''Scramble a cube using n random moves'''
     moves = 'RDFLBUrdflbu'
     sequence = ''
-    prev = ''
+    condensed = ''
 
-    # Apply n random moves
-    i = 0
-    while i < n:
-        move = moves[randint(0,11)]
-        # Prevent redundant moves
-        if move == prev.swapcase():
-            continue
-        apply(move, cube)
+    while len(condensed) < n:
+        move = moves[randint(0, 11)]
         sequence += move
-        prev = move
-        i += 1
-    return sequence
+        condensed = condense(sequence)
+        
+    execute(condensed, cube)
+    return condensed
 
 
 def new_cube():

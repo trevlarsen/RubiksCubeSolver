@@ -2,11 +2,24 @@ import numpy as np
 import time as t
 import textwrap
 from matplotlib import pyplot as plt
+from time import perf_counter
 
 from primary import apply, scramble, new_cube, is_solved
-from sequences import condense
+from sequences import valid_solution
+from condense import condense
 from algorithms2 import make_cross, bottom_corners, middle_edges, orient_top_edges, permute_top_edges, orient_top_corners, permute_top_corners
 from show_cube import show_cube
+
+import sys
+import os
+
+# Add the parent directory of 'classification_solver' to sys.path
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(parent_dir)
+
+# Now you can import from classification_solver
+from classification_solver.larger_model import solve_cube_with_model
+from classification_solver.classifier import Cube
 
 
 def solve(cube):
@@ -38,10 +51,11 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
     move_count = len(solution)
 
     # Record result
-    if is_solved(cube):
+    if is_solved(cube) and valid_solution(scramble_sequence, solution):
         solved = True
     else:
         solved = False
+
     
     # Print details
     if details:
@@ -134,10 +148,104 @@ def one_solve(n=30, details=True, follow=False, plot=False, skip=1, both_sides=F
 #             print("Invalid choice. Please enter a number from 1 to 3.")
 
 
+# one_solve(plot=True, skip=2, both_sides=False)
 
-# interactive()
+def convert_scramble(move_string):
+    moves = []
+    for char in move_string:
+        if char.islower():
+            moves.append(char.upper() + "'")
+        else:
+            moves.append(char)
+    return moves
 
-one_solve(plot=True, skip=2, both_sides=False)
+
+def revert_solution(move_list):
+    move_string = ""
+    for move in move_list:
+        if move.endswith("2"):  # Handle moves like D2
+            move_string += move[0] * 2
+        elif "'" in move:  # Handle primed moves
+            move_string += move[0].lower()
+        else:  # Handle regular moves
+            move_string += move
+    return move_string
+
+def display_solution(solver_name, scramble, solution, both_sides, skip, speed):
+    # Display initial cube
+        plt_cube = new_cube()
+        show_cube(plt_cube, both_sides=both_sides, title=solver_name + ' Solver')
+        plt.pause(3)
+
+        # Display scramble
+        for move in scramble:
+            show_cube(plt_cube, both_sides=both_sides, speed=.03, title='Scrambling...')
+            apply(move, plt_cube)
+        show_cube(plt_cube, both_sides=both_sides, speed=.05, title='Ready')
+        plt.pause(3)
+        
+        # Display solution
+        for i, move in enumerate(solution):
+            if i % skip == 0:
+                show_cube(plt_cube, both_sides=both_sides, speed=speed, title='Solving...')
+            apply(move, plt_cube)
+        show_cube(plt_cube, both_sides=both_sides, title=f'Solved in {len(solution)} moves!')
+        plt.pause(3)
+
+
+def compare_solvers(plot=True, both_sides=False, skip=1):
+    class_time = 0.0
+    while True:
+        alg_cube = new_cube()
+        alg_scramble = scramble(alg_cube, n=13)
+        start = perf_counter()
+        alg_solution = condense(solve(alg_cube))
+        alg_time = perf_counter() - start
+        alg_solution_length = len(alg_solution)
+
+        class_scramble = convert_scramble(alg_scramble)
+        os.chdir("..")
+        os.chdir("classification_solver")
+        start = perf_counter()
+        success, class_solution = solve_cube_with_model(class_scramble, model_path='larger_imitation_model_best.pth')
+        class_time += perf_counter() - start
+        os.chdir("..")
+        os.chdir("algorithmic_solver")
+        class_solution = condense(revert_solution(class_solution))
+        class_solution_length = len(class_solution)
+        if not success:
+            continue
+        break
+    if plot:
+        plt.ion()
+        display_solution('Algorithmic', alg_scramble, alg_solution, both_sides, skip, speed=.005)
+        display_solution('Classification', alg_scramble, class_solution, both_sides, skip, speed=.35)
+        plt.ioff()
+        plt.show()
+    
+    print()
+    print("="*40)
+    print(f"Scramble: {alg_scramble}")
+    print("="*40)
+    print()
+
+    print("Algorithmic Solver Results")
+    print("-"*40)
+    print(f"Solution:    {alg_solution}")
+    print(f"Move Count:  {alg_solution_length}")
+    print(f"Solve Time:  {alg_time:.6f} seconds")
+    print()
+
+    print("Classification Solver Results")
+    print("-"*40)
+    print(f"Solution:    {class_solution}")
+    print(f"Move Count:  {class_solution_length}")
+    print(f"Solve Time:  {class_time:.6f} seconds")
+    print("="*40)
+    print()
+
+if __name__ == "__main__":
+    compare_solvers()
 
 # def user_solve():
 #     '''Allow the user to input values of their cube'''

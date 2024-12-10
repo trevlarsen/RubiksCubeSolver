@@ -153,7 +153,7 @@ def show_cube(cube, both_sides=True, speed=.1, title=''):
     render_cube(ax, cube)
     ax.axis('off')
     ax.axis('equal')
-    ax.text2D(0.5, 0.99, r"$\bf{" + title + "}$", transform=ax.transAxes, ha='center', fontsize=18)
+    ax.text2D(0.5, 0.99, title, transform=ax.transAxes, ha='center', fontsize=18, fontweight='bold')
     if both_sides:
         ax = plt.subplot(1,2,2, projection='3d')
         render_cube(ax, cube)

@@ -5,7 +5,6 @@ import time as t
 from main import solve, one_solve
 
 
-
 def performance_test(n, m, details=True, full_data=False):
     '''Analyzes the performance of a solution method over a specified number of solves'''
     # Initialize variables
@@ -102,7 +101,7 @@ def scramble_test(n, lim=30):
     plt.show()
 
 
+if __name__ == "__main__":
+    performance_test(3000,30, details=True, full_data=False)
 
-# performance_test(5000,30, details=True, full_data=False)
-
-# scramble_test(100)
+    # scramble_test(100)
