@@ -7,8 +7,8 @@ import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader, random_split
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-# from .classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
-from classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
+from .classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
+# from classifier import ALL_MOVES, Cube, ImitationModel, state_to_numeric, color_map
 
 class LargerImitationModel(nn.Module):
     def __init__(self, input_dim=54, hidden_dim=512, output_dim=len(ALL_MOVES)):
@@ -236,55 +236,33 @@ def test_model2(model_path="imitation_model_best.pth", test_data_file="test_data
 
 
 def solve_cube_with_model(scramble, model_path="larger_imitation_model_best.pth", max_moves=100):
-    """
-    Solves a scrambled Rubik's cube using a trained model.
-
-    Args:
-        scramble (list[str]): The scramble sequence to apply to the cube.
-        model_path (str): Path to the saved PyTorch model.
-        max_moves (int): Maximum number of moves to attempt solving.
-
-    Returns:
-        tuple: (solved, move_sequence) where:
-            solved (bool): Whether the cube was successfully solved.
-            move_sequence (list): The sequence of moves applied to the cube.
-    """
-    # Load the model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = LargerImitationModel()
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     model.eval()
 
-    # Initialize the cube and apply the scramble
     cube = Cube()
-    cube.scramble_specific(scramble)  # Apply scramble sequence
+    cube.scramble_specific(scramble)
 
     move_sequence = []
     idx_to_move = {i: m for i, m in enumerate(ALL_MOVES)}
 
     for step in range(max_moves):
-        # Convert current cube state to numeric and tensor format
         state_numeric = state_to_numeric(cube.to_string())
         state_tensor = torch.tensor(state_numeric, dtype=torch.long).unsqueeze(0).to(device)
 
-        # Get the model's predicted move
         with torch.no_grad():
             logits = model(state_tensor)
         predicted_move_idx = torch.argmax(logits, dim=1).item()
         predicted_move = idx_to_move[predicted_move_idx]
 
-        # Apply the predicted move to the cube
         cube.apply_move(predicted_move)
         move_sequence.append(predicted_move)
 
-        # Check if the cube is solved
         if cube.is_solved():
-            # print(f"Cube solved in {len(move_sequence)} moves!")
             return True, move_sequence
 
-    # If the loop ends without solving
-    # print("Failed to solve the cube within the move limit.")
     return False, move_sequence
 
 if __name__ == "__main__":
