@@ -1,6 +1,6 @@
 # RubiksCubeSolver
 
-This project provides two distinct approaches to solving the Rubik's Cube:
+This project explores two distinct approaches to solving the Rubik's Cube:
 
 1. **Algorithmic Solver**: 
    - Solves the cube piece by piece using logic and predefined algorithms.
