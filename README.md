@@ -1,5 +1,8 @@
 # RubiksCubeSolver
 
+![Animation](rubiks.gif)
+
+
 This project provides two distinct approaches to solving the Rubik's Cube:
 
 1. **Algorithmic Solver**: 
